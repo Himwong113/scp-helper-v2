@@ -6,226 +6,358 @@
   <title>scp-helper</title>
   <style>
     :root {
-      --bg: #0a0a0a;
-      --card: #111111;
-      --card-border: #222;
-      --orange: #f97316;
-      --orange-soft: rgba(249, 115, 22, 0.12);
-      --text: #e5e5e5;
-      --muted: #a3a3a3;
-      --danger: #f43f5e;
-      --success: #34d399;
+      --bg: #0c0c0c;
+      --card-bg: #1a1a1a;
+      --card-border: #2a2a2a;
+      --orange: #ff9000;
+      --orange-hover: #e68200;
+      --orange-soft: rgba(255, 144, 0, 0.12);
+      --text: #fff;
+      --muted: #999;
+      --danger: #e74c3c;
+      --success: #2ecc71;
+      --radius: 4px;
+      --radius-lg: 8px;
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      padding: 1rem;
+      padding: 0;
       min-height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       color: var(--text);
       background: var(--bg);
     }
 
-    .bento {
+    /* ── Top bar ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1rem;
+      background: #000;
+      border-bottom: 1px solid #222;
+    }
+
+    .logo {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+    }
+
+    .logo span {
+      display: inline-block;
+      background: var(--orange);
+      color: #000;
+      padding: 0.1rem 0.45rem;
+      border-radius: 3px;
+      margin-right: 2px;
+    }
+
+    .topbar input {
+      flex: none;
+      border: none;
+      background: #1a1a1a;
+      color: var(--text);
+      padding: 0.45rem 0.75rem;
+      border-radius: var(--radius);
+      font-size: 0.85rem;
+      outline: none;
+      min-width: 0;
+    }
+
+    .topbar input:focus {
+      box-shadow: 0 0 0 2px var(--orange);
+    }
+
+    .topbar input::placeholder { color: #666; }
+
+    .at { color: #666; font-weight: 600; user-select: none; }
+
+    .btn {
+      cursor: pointer;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 0.825rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      padding: 0.45rem 1rem;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-orange {
+      background: var(--orange);
+      color: #000;
+    }
+
+    .btn-orange:hover { background: var(--orange-hover); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid #333;
+    }
+
+    .btn-ghost:hover { color: #fff; border-color: #555; }
+
+    .status-pill {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #666;
+      margin-left: auto;
+    }
+
+    .status-pill.on {
+      color: var(--success);
+    }
+
+    /* ── Main grid ── */
+    .main-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1rem;
-      max-width: 1200px;
+      padding: 1rem;
+      max-width: 1300px;
       margin: 0 auto;
     }
 
+    @media (max-width: 800px) {
+      .main-grid { grid-template-columns: 1fr; }
+      .topbar { flex-wrap: wrap; }
+    }
+
+    /* ── Cards ── */
     .card {
-      grid-column: span 1;
-      background: var(--card);
+      background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 1rem;
-      padding: 1rem;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
     }
 
-    .wide { grid-column: span 2; }
-
-    h1, h2 {
-      margin: 0 0 0.75rem;
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--orange);
-      letter-spacing: 0.02em;
-    }
-
-    h1 { font-size: 1.15rem; }
-
-    .connect-row {
+    .card-header {
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
       align-items: center;
+      justify-content: space-between;
+      padding: 0.65rem 1rem;
+      background: #141414;
+      border-bottom: 1px solid var(--card-border);
     }
 
-    input, button {
-      font: inherit;
-      border-radius: 0.6rem;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(0, 0, 0, 0.25);
-      color: var(--text);
-      padding: 0.45rem 0.7rem;
-      outline: none;
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-
-    input::placeholder { color: var(--muted); }
-    input:focus {
-      border-color: var(--orange);
-      box-shadow: 0 0 0 3px var(--orange-soft);
-    }
-
-    button {
-      cursor: pointer;
-      background: var(--orange);
-      border-color: transparent;
-      font-weight: 500;
-      color: #0a0a0a;
-    }
-
-    button:hover { background: #ea580c; }
-
-    .status {
-      margin-left: auto;
-      font-size: 0.85rem;
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
       color: var(--muted);
     }
 
-    .status.connected { color: var(--success); }
-
-    .path-row {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 0.75rem;
+    .card-body {
+      padding: 0.5rem;
+      max-height: 55vh;
+      overflow-y: auto;
     }
 
-    .path-row input { flex: 1; }
+    /* ── Path bar ── */
+    .path-bar {
+      display: flex;
+      gap: 0.35rem;
+      padding: 0.4rem;
+    }
 
-    table {
+    .path-bar input {
+      flex: 1;
+      border: 1px solid #222;
+      background: #0c0c0c;
+      color: var(--text);
+      padding: 0.4rem 0.6rem;
+      border-radius: var(--radius);
+      font-size: 0.8rem;
+      outline: none;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .path-bar input:focus { border-color: var(--orange); }
+    .path-bar input::placeholder { color: #555; }
+
+    .btn-sm {
+      font-size: 0.7rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      border: none;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: #222;
+      color: var(--muted);
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .btn-sm:hover { background: #333; color: #fff; }
+
+    /* ── File list ── */
+    .file-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.9rem;
+      font-size: 0.82rem;
     }
 
-    th, td {
+    .file-table th {
       text-align: left;
-      padding: 0.4rem 0.5rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 0.35rem 0.5rem;
+      color: #555;
+      font-weight: 600;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid #1f1f1f;
     }
 
-    th { color: var(--muted); font-weight: 500; }
+    .file-table td {
+      padding: 0.3rem 0.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
 
-    .name {
+    .file-name {
       cursor: pointer;
-      border-radius: 0.35rem;
-      transition: background 0.12s, color 0.12s;
+      border-radius: 3px;
+      transition: color 0.1s;
+      word-break: break-all;
     }
 
-    .name:hover {
-      color: var(--orange);
-      background: var(--orange-soft);
-      text-decoration: underline;
-    }
+    .file-name:hover { color: var(--orange); }
 
-    .arrow { width: 2.5rem; text-align: center; }
+    .col-btn { width: 2.2rem; text-align: center; }
 
-    .arrow button {
-      padding: 0.2rem 0.45rem;
-      font-size: 0.85rem;
-      border-radius: 0.45rem;
+    .mini-btn {
+      cursor: pointer;
+      border: none;
+      border-radius: 3px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.15rem 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
       background: var(--orange);
-      color: #0a0a0a;
+      color: #000;
+      transition: background 0.15s;
     }
 
-    .arrow button:hover { background: #ea580c; }
+    .mini-btn:hover { background: var(--orange-hover); }
 
-    #log {
-      min-height: 4rem;
-      padding: 0.75rem;
-      border-radius: 0.6rem;
-      background: #050505;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.85rem;
-      white-space: pre-wrap;
-      color: var(--muted);
-      border: 1px solid var(--card-border);
-    }
-
-    #log.error { color: var(--danger); }
-
+    /* ── Drop zone ── */
     .drop-zone {
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
 
     .drop-zone-active {
       border-color: var(--orange) !important;
-      box-shadow: 0 0 0 3px var(--orange-soft) !important;
+      box-shadow: inset 0 0 0 2px var(--orange) !important;
     }
 
-    @media (max-width: 760px) {
-      .bento { grid-template-columns: 1fr; }
-      .wide, .card { grid-column: span 1; }
-      .connect-row { flex-direction: column; align-items: stretch; }
-      .status { margin-left: 0; }
+    /* ── Log footer ── */
+    .log-console {
+      grid-column: 1 / -1;
+      background: #0a0a0a;
+      border: 1px solid #1f1f1f;
+      border-radius: var(--radius-lg);
+      padding: 0.65rem 1rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.78rem;
+      color: var(--muted);
+      min-height: 3rem;
+      white-space: pre-wrap;
     }
+
+    .log-console.error { color: var(--danger); }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.15rem 0.45rem;
+      border-radius: 3px;
+      background: #222;
+      color: var(--muted);
+      margin-left: 0.35rem;
+    }
+
+    .badge.dir { color: var(--orange); background: rgba(255,144,0,0.1); }
   </style>
 </head>
 <body>
-  <div class="bento">
-    <div class="card wide">
-      <h1>scp-helper</h1>
-      <div class="connect-row">
-        <input id="user" placeholder="user" value="">
-        <span>@</span>
-        <input id="host" placeholder="device" value="">
-        <input id="password" type="password" placeholder="password">
-        <input id="remotePath" placeholder="remote path" value="~">
-        <button onclick="connect()">Connect</button>
-        <span class="status" id="connStatus"></span>
-      </div>
-    </div>
 
+  <!-- ── Top bar ── -->
+  <div class="topbar">
+    <div class="logo"><span>SCP</span>HELPER</div>
+    <input id="user" placeholder="Username" size="10">
+    <span class="at">@</span>
+    <input id="host" placeholder="Hostname or IP" size="16">
+    <input id="password" type="password" placeholder="Password" size="12">
+    <input id="remotePath" placeholder="Remote path" value="~" size="14">
+    <button class="btn btn-orange" onclick="connect()">Connect</button>
+    <span class="status-pill" id="connStatus"></span>
+  </div>
+
+  <!-- ── Main grid ── -->
+  <div class="main-grid">
+
+    <!-- Local -->
     <div class="card">
-      <h2>Local</h2>
-      <div class="path-row">
-        <input id="localPath" value="~">
-        <button onclick="loadLocal()">List</button>
+      <div class="card-header">
+        <span class="card-title">💻 Local</span>
       </div>
-      <table>
-        <thead><tr><th>Name</th><th class="arrow">→</th></tr></thead>
-        <tbody id="localList"></tbody>
-      </table>
+      <div class="path-bar">
+        <input id="localPath" value="~" placeholder="Local path">
+        <button class="btn-sm" onclick="loadLocal()">Browse</button>
+      </div>
+      <div class="card-body">
+        <table class="file-table">
+          <thead><tr><th>Name</th><th class="col-btn">→</th></tr></thead>
+          <tbody id="localList"></tbody>
+        </table>
+      </div>
     </div>
 
+    <!-- Remote (drop target) -->
     <div class="card drop-zone" id="remoteCard">
-      <h2>Remote</h2>
-      <div class="path-row">
-        <input id="remotePanePath" value="~">
-        <button onclick="loadRemote()">List</button>
+      <div class="card-header">
+        <span class="card-title">🌐 Remote</span>
+        <span class="badge" style="font-size:0.62rem">Drop files here</span>
       </div>
-      <table>
-        <thead><tr><th class="arrow">←</th><th>Name</th></tr></thead>
-        <tbody id="remoteList"></tbody>
-      </table>
+      <div class="path-bar">
+        <input id="remotePanePath" value="~" placeholder="Remote path">
+        <button class="btn-sm" onclick="loadRemote()">Browse</button>
+      </div>
+      <div class="card-body">
+        <table class="file-table">
+          <thead><tr><th class="col-btn">←</th><th>Name</th></tr></thead>
+          <tbody id="remoteList"></tbody>
+        </table>
+      </div>
     </div>
 
-    <div class="card wide">
-      <h2>Log</h2>
-      <div id="log"></div>
-    </div>
+    <!-- Log -->
+    <div class="log-console" id="log"></div>
   </div>
 
   <script>
     function log(msg, isError) {
       const el = document.getElementById('log');
-      el.textContent = msg;
-      el.className = isError ? 'error' : '';
+      const t = new Date().toLocaleTimeString('en-US', { hour12: false });
+      const prefix = isError ? `[${t}] ✗ ` : `[${t}] `;
+      el.textContent = prefix + msg;
+      el.className = isError ? 'log-console error' : 'log-console';
     }
 
     async function postJson(url, body) {
@@ -247,16 +379,16 @@
           password: document.getElementById('password').value,
           remote_path: document.getElementById('remotePath').value,
         });
-        const status = document.getElementById('connStatus');
-        status.textContent = 'connected';
-        status.className = 'status connected';
+        const s = document.getElementById('connStatus');
+        s.textContent = '● Connected';
+        s.className = 'status-pill on';
         document.getElementById('remotePanePath').value = document.getElementById('remotePath').value;
         await Promise.all([loadLocal(), loadRemote()]);
-        log('connected');
+        log('Connected');
       } catch (e) {
-        const status = document.getElementById('connStatus');
-        status.textContent = '';
-        status.className = 'status';
+        const s = document.getElementById('connStatus');
+        s.textContent = '';
+        s.className = 'status-pill';
         log(e.message, true);
       }
     }
@@ -282,9 +414,12 @@
       tbody.innerHTML = '';
       for (const item of items) {
         const tr = document.createElement('tr');
+        const isDir = item.type === 'dir';
+
         const nameCell = document.createElement('td');
-        nameCell.textContent = item.name + (item.type === 'dir' ? '/' : '');
-        nameCell.className = 'name';
+        const icon = isDir ? '📁 ' : '📄 ';
+        nameCell.innerHTML = icon + item.name + (isDir ? '<span class="badge dir">dir</span>' : '');
+        nameCell.className = 'file-name';
         nameCell.onclick = () => {
           const inputId = side === 'local' ? 'localPath' : 'remotePanePath';
           const input = document.getElementById(inputId);
@@ -294,11 +429,12 @@
         };
 
         const arrowCell = document.createElement('td');
-        arrowCell.className = 'arrow';
+        arrowCell.className = 'col-btn';
         const btn = document.createElement('button');
+        btn.className = 'mini-btn';
         btn.textContent = side === 'local' ? '→' : '←';
-        btn.title = side === 'local' ? 'Upload to remote' : 'Download to local';
-        btn.onclick = () => transfer(side, item.name);
+        btn.title = side === 'local' ? 'Upload' : 'Download';
+        btn.onclick = e => { e.stopPropagation(); transfer(side, item.name); };
         arrowCell.appendChild(btn);
 
         if (side === 'local') {
@@ -316,18 +452,19 @@
       const localDir = document.getElementById('localPath').value;
       const remoteDir = document.getElementById('remotePanePath').value;
       try {
-        const data = await postJson('/api/transfer', {
+        await postJson('/api/transfer', {
           direction: side === 'local' ? 'local_to_remote' : 'remote_to_local',
           source_dir: side === 'local' ? localDir : remoteDir,
           target_dir: side === 'local' ? remoteDir : localDir,
           name,
         });
-        log((data.output || 'transfer ok').trim());
+        log((side === 'local' ? '↑ ' : '↓ ') + name);
         await Promise.all([loadLocal(), loadRemote()]);
       } catch (e) {
         log(e.message, true);
       }
     }
+
     async function uploadFile(file, targetDir) {
       const form = new FormData();
       form.append('file', file);
@@ -338,7 +475,7 @@
       return data;
     }
 
-    // ponytail: drop-to-remote, single-file-at-a-time upload
+    // ── Drop zone ──
     const remoteCard = document.getElementById('remoteCard');
     remoteCard.addEventListener('dragover', e => {
       e.preventDefault();
@@ -357,7 +494,7 @@
       for (const file of files) {
         try {
           await uploadFile(file, targetDir);
-          log(`✓ ${file.name}`);
+          log(`↑ ${file.name}`);
         } catch (err) {
           log(`✗ ${file.name}: ${err.message}`, true);
         }
