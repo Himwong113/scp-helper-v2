@@ -1,6 +1,7 @@
 import os
 import posixpath
 import stat
+import tempfile
 from pathlib import Path
 
 import paramiko
@@ -158,6 +159,33 @@ def transfer():
         return _error(str(e), 500)
     except Exception as e:
         return _error(str(e), 500)
+
+
+@app.route("/api/upload", methods=["POST"])
+def upload():
+    # ponytail: single-file upload to temp → SCP → cleanup
+    if not session.get("user") or not session.get("host"):
+        return _error("not connected", 401)
+
+    file = request.files.get("file")
+    if not file or not file.filename:
+        return _error("no file")
+
+    target_dir = request.form.get("target_dir", "").strip()
+    if not target_dir:
+        return _error("target_dir required")
+
+    with tempfile.NamedTemporaryFile(delete=False) as tmp:
+        file.save(tmp.name)
+
+    try:
+        with _ssh_client() as client:
+            with SCPClient(client.get_transport()) as scp:
+                remote_target = os.path.join(target_dir, file.filename)
+                scp.put(tmp.name, remote_target)
+        return jsonify({"status": "ok", "name": file.filename})
+    finally:
+        os.unlink(tmp.name)
 
 
 if __name__ == "__main__":

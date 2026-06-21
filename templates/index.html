@@ -159,6 +159,15 @@
 
     #log.error { color: var(--danger); }
 
+    .drop-zone {
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .drop-zone-active {
+      border-color: var(--orange) !important;
+      box-shadow: 0 0 0 3px var(--orange-soft) !important;
+    }
+
     @media (max-width: 760px) {
       .bento { grid-template-columns: 1fr; }
       .wide, .card { grid-column: span 1; }
@@ -194,7 +203,7 @@
       </table>
     </div>
 
-    <div class="card">
+    <div class="card drop-zone" id="remoteCard">
       <h2>Remote</h2>
       <div class="path-row">
         <input id="remotePanePath" value="~">
@@ -319,6 +328,42 @@
         log(e.message, true);
       }
     }
+    async function uploadFile(file, targetDir) {
+      const form = new FormData();
+      form.append('file', file);
+      form.append('target_dir', targetDir);
+      const res = await fetch('/api/upload', { method: 'POST', body: form });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      return data;
+    }
+
+    // ponytail: drop-to-remote, single-file-at-a-time upload
+    const remoteCard = document.getElementById('remoteCard');
+    remoteCard.addEventListener('dragover', e => {
+      e.preventDefault();
+      remoteCard.classList.add('drop-zone-active');
+    });
+    remoteCard.addEventListener('dragleave', () => {
+      remoteCard.classList.remove('drop-zone-active');
+    });
+    remoteCard.addEventListener('drop', async e => {
+      e.preventDefault();
+      remoteCard.classList.remove('drop-zone-active');
+      const files = e.dataTransfer.files;
+      if (!files.length) return;
+      const targetDir = document.getElementById('remotePanePath').value;
+      log(`Uploading ${files.length} file(s)...`);
+      for (const file of files) {
+        try {
+          await uploadFile(file, targetDir);
+          log(`✓ ${file.name}`);
+        } catch (err) {
+          log(`✗ ${file.name}: ${err.message}`, true);
+        }
+      }
+      loadRemote();
+    });
   </script>
 </body>
 </html>
